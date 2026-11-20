@@ -1,6 +1,7 @@
 import { Box, Chip, Stack, Tab, Tabs, Typography } from "@mui/material";
 
 import { useMarket } from "../context/MarketContext";
+import { APP_MARKETS } from "../config/appMarket";
 import { MARKETS, type MarketCode, type MarketStatus } from "../types/market";
 
 function formatInMarket(iso: string, market: MarketCode, withDay: boolean): string {
@@ -40,7 +41,7 @@ function MarketTabs() {
         onChange={(_, value: MarketCode) => setMarket(value)}
         aria-label="Market"
       >
-        {(Object.keys(MARKETS) as MarketCode[]).map((code) => {
+        {APP_MARKETS.map((code) => {
           const status = statuses?.[code];
           return (
             <Tab

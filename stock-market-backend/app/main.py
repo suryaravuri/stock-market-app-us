@@ -33,7 +33,6 @@ from app.api.v1.watchlist_stocks import (
     router as watchlist_stocks_router,
 )
 from app.api.v1.watchlists import router as watchlists_router
-from app.api.v1.zerodha import router as zerodha_router
 
 from app.core import local_scheduler
 from app.core.config import settings
@@ -157,10 +156,14 @@ app.include_router(
     prefix="/api/v1",
 )
 
-app.include_router(
-    zerodha_router,
-    prefix="/api/v1",
-)
+# Zerodha (India) routes only in the India app (APP_MARKET=IN or ALL).
+if settings.app_market.strip().upper() in ("IN", "ALL"):
+    from app.api.v1.zerodha import router as zerodha_router
+
+    app.include_router(
+        zerodha_router,
+        prefix="/api/v1",
+    )
 
 app.include_router(
     jobs_router,
@@ -203,6 +206,7 @@ def health():
         "status": "UP",
         "application": settings.app_name,
         "version": settings.app_version,
+        "market": settings.app_market,
     }
 
 

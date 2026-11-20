@@ -14,10 +14,26 @@ from app.schemas.stock import (
 class StockService:
 
     @staticmethod
+    def _check_market(stock_create: StockCreate) -> None:
+        """Refuse stocks from the other market (APP_MARKET)."""
+        from app.market.app_market import app_market, exchange_allowed
+
+        if not exchange_allowed(getattr(stock_create, "exchange", None)):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"'{stock_create.symbol}' ({stock_create.exchange}) belongs to the other "
+                    f"market; this app serves {app_market()} only"
+                ),
+            )
+
+    @staticmethod
     def create_stock(
         db: Session,
         stock_create: StockCreate,
     ) -> Stock:
+
+        StockService._check_market(stock_create)
 
         existing_stock = StockRepository.find_by_symbol(
             db,
@@ -145,6 +161,18 @@ class StockService:
                         message=(
                             "Duplicate symbol in bulk import"
                         ),
+                    )
+                )
+                continue
+
+            from app.market.app_market import app_market, exchange_allowed
+
+            if not exchange_allowed(getattr(stock_create, "exchange", None)):
+                errors.append(
+                    StockBulkError(
+                        row=row_number,
+                        symbol=symbol,
+                        message=f"Other market ({stock_create.exchange}); this app serves {app_market()} only",
                     )
                 )
                 continue

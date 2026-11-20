@@ -6,6 +6,9 @@ market hours the bot syncs candles from Alpaca, scans the watchlists
 manages exits. A 1-minute stream adds faster live bounce entries.
 
 > Paper trading only. `LIVE_TRADING_ENABLED` must stay `false`.
+>
+> US market only (`APP_MARKET=US`). The India app lives in the separate
+> `stock-market-app-india` repository with its own database.
 
 ## Layout
 | Folder | What |

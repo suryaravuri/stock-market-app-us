@@ -8,6 +8,7 @@ from app.models.watchlist import (
     WatchlistStock,
 )
 from app.schemas.market import MarketTimeframe
+from app.market.app_market import exchange_allowed
 from app.market.sessions import is_indian_exchange
 from app.services.market_service import MarketService
 from app.services.zerodha_auth_service import ZerodhaAuthService
@@ -85,6 +86,9 @@ class WatchlistMarketSyncService:
         rows = db.execute(
             stmt
         ).all()
+        # Only this deployment's market (APP_MARKET): the US app never asks
+        # Zerodha for NSE/BSE candles.
+        rows = [row for row in rows if exchange_allowed(row[1].exchange)]
 
         # ---------------------------------
         # 3. Create MarketService instance

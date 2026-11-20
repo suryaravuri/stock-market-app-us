@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 
+import { APP_MARKET, APP_MARKETS } from "../config/appMarket";
 import { getMarketsStatus } from "../services/marketStatusService";
 import type { MarketCode, MarketsStatus } from "../types/market";
 
@@ -24,13 +25,13 @@ const MarketContext = createContext<MarketContextValue | undefined>(undefined);
 function initialMarket(): MarketCode {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === "US" || saved === "IN") {
-      return saved;
+    if (saved && (APP_MARKETS as string[]).includes(saved)) {
+      return saved as MarketCode;
     }
   } catch {
-    // Storage unavailable: fall back to US.
+    // Storage unavailable: fall back to this app's market.
   }
-  return "US";
+  return APP_MARKET;
 }
 
 export function MarketProvider({ children }: { children: ReactNode }) {

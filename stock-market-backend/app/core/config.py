@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     # Application
     app_name: str = "Stock Market Application"
     app_version: str = "1.0.0"
+    # US | IN | ALL - which market this deployment serves (app/market/app_market.py)
+    app_market: str = "US"
     debug: bool = False
 
     # PostgreSQL
@@ -158,8 +160,6 @@ class Settings(BaseSettings):
     # Leave unset to disable the webhook endpoint.
     tradingview_webhook_secret: str | None = None
 
-    # Upstox OAuth callback (must match the Upstox developer console exactly)
-    upstox_redirect_uri: str | None = None
 
     # Backtesting: separate database on the same Postgres server, so replaying
     # history never touches live signal/position tables.

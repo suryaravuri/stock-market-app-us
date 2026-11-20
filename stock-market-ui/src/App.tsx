@@ -16,10 +16,8 @@ import { WatchlistProvider } from "./context/WatchlistContext";
 import { MarketProvider } from "./context/MarketContext";
 import AdminRoute from "./components/AdminRoute";
 import StockMasterPage from "./pages/StockMasterPage";
-import TradesPnLPage from "./pages/TradesPnLPage";
 import BacktestsPage from "./pages/BacktestsPage";
 import OptionsPage from "./pages/OptionsPage";
-import FuturesPage from "./pages/FuturesPage";
 import SectorHeatmapPage from "./pages/SectorHeatmapPage";
 import PaperPnlPage from "./pages/PaperPnlPage";
 
@@ -48,12 +46,10 @@ function App() {
             <Route path="/risk" element={<RiskPositionsPage />} />
             <Route path="/market-data" element={<MarketDataPage />} />
             <Route path="/validation" element={<ValidationStatisticsPage />} />
-            <Route path="/trades" element={<TradesPnLPage />} />
             <Route path="/heatmap" element={<SectorHeatmapPage />} />
             <Route path="/paper-pnl" element={<PaperPnlPage />} />
             <Route path="/backtests" element={<BacktestsPage />} />
             <Route path="/options" element={<OptionsPage />} />
-            <Route path="/futures" element={<FuturesPage />} />
 
 
             <Route
