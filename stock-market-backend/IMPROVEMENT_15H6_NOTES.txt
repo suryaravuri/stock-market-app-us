@@ -1,8 +1,0 @@
-#15H-6 Severity-Based Priority Hardening
-
-- Weakness diagnostics now sort by severity first: CRITICAL > HIGH > MEDIUM > LOW.
-- Existing diagnostic/business priority is retained as a deterministic tie-breaker within a severity.
-- Public priority values are renumbered sequentially after sorting.
-- No database migration.
-- No broker/execution changes. Analysis-only behavior remains unchanged.
-- Added regression coverage for the exact #15H-5 seven-weakness scenario.
