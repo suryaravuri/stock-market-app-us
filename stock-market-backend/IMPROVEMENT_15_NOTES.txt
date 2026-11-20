@@ -1,0 +1,53 @@
+Improvement #15 - Post-entry trade lifecycle / position management (analysis-only)
+
+Goal
+----
+Track what would happen after ENTRY_CONFIRMED without submitting any broker order.
+
+Safety boundary
+---------------
+- execution_mode is always ANALYSIS_ONLY.
+- broker_order_submitted is always false.
+- No trading flags were enabled.
+- No Alpaca trading endpoint is called by this feature.
+
+Lifecycle
+---------
+ENTRY_CONFIRMED signal -> POSITION_OPEN
+POSITION_OPEN -> TARGET_1_HIT when a later completed candle reaches target 1
+TARGET_1_HIT -> TRAILING on later completed candles while price stays above stop
+POSITION_OPEN / TARGET_1_HIT / TRAILING -> STOP_HIT when the active stop is touched
+Any active state -> TARGET_2_HIT when target 2 is reached
+STOP_HIT and TARGET_2_HIT are terminal and idempotent on repeated reads.
+
+Risk management rules
+---------------------
+- Entry, initial stop, and targets are snapshotted from Improvement #11 confirmed-breakout risk.
+- Target 1 moves the analytical stop to breakeven for subsequent candles.
+- After target 1, a deterministic 1R close-based trailing stop is used.
+- The newly calculated trailing stop cannot be applied to the same candle that created it (no look-ahead).
+- If one OHLC candle spans both stop and target, stop is assumed first (conservative ambiguity rule).
+
+Persistence
+-----------
+New tables:
+- position_state
+- position_state_history
+
+One analytical position is stored per stock/timeframe/signal lifecycle cycle.
+History is written only for meaningful state transitions.
+
+New endpoints
+-------------
+GET /api/v1/analysis/{symbol}/position-lifecycle?timeframe=15Min
+GET /api/v1/analysis/{symbol}/position-lifecycle/history?timeframe=15Min&limit=50
+
+/setup integration
+------------------
+GET /api/v1/analysis/{symbol}/setup now includes position_lifecycle.
+Before ENTRY_CONFIRMED it returns state=NOT_OPEN and does not create a DB position.
+
+Migration
+---------
+alembic upgrade head
+Expected head: b7d31f2a6c90

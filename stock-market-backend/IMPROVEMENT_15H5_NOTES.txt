@@ -1,0 +1,26 @@
+#15H-5 Controlled Diagnostics Simulation
+
+Adds POST /api/v1/analysis/trade-journal/diagnostics/simulate.
+
+Purpose:
+- Validate #15H weakness detection with controlled hypothetical completed trades.
+- Detect weak/non-positive expectancy, poor profit factor, low win rate,
+  stop-exit concentration, and weak symbol/timeframe buckets without waiting
+  for real production analytical trade history.
+
+Safety/isolation:
+- simulation_mode=STATELESS_DIAGNOSTICS_VALIDATION
+- execution_mode=ANALYSIS_ONLY
+- persistence_mode=NONE
+- database_mutated=false
+- production_position_tables_mutated=false
+- broker_order_submitted=false
+- No Alembic migration required.
+
+Input trade fields:
+- realized_r (required)
+- symbol (default SIMULATION)
+- timeframe (default 15Min)
+- state (optional; inferred when absent)
+- exit_reason (optional; inferred when absent)
+- holding_minutes (default 60)

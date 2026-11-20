@@ -1,0 +1,30 @@
+Improvement #16C-1 - Completed-Candle Enforcement
+
+Purpose
+- Prevent Frozen-V1 watchlist scans from reading a still-forming candle.
+- Preserve the active SELECTION_ENGINE_V1 baseline hash: no frozen V1 source file is modified.
+
+Implementation
+- Adds app/services/completed_candle_guard.py.
+- #16C computes one evaluated_at timestamp and derives completed-bar cutoffs for 15Min, 1Hour and 1Day.
+- During each SetupService call, a scoped SQLAlchemy ORM read guard restricts MarketCandle reads to those cutoffs.
+- The guard is removed in finally, so normal market sync/storage behavior is unchanged.
+- #16B validation and #16C use the same evaluated_at timestamp.
+
+New per-symbol diagnostics
+- analysis_as_of
+- latest_stored_candle
+- completed_candle_enforcement=true
+- used_incomplete_candle=false (required for PASS)
+
+Expected example at 19:40Z for 15Min
+- latest_stored_candle may be 19:30Z
+- analysis_as_of is 19:15Z
+- signal_candle_time must be <= 19:15Z
+- used_incomplete_candle=false
+
+Safety
+- ANALYSIS_ONLY
+- no broker order
+- no V1 threshold changes
+- no Alembic migration

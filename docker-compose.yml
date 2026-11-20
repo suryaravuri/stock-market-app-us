@@ -1,0 +1,32 @@
+services:
+
+  postgres:
+    image: postgres:17
+    container_name: stock-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: stockmarket
+      POSTGRES_USER: stockuser
+      POSTGRES_PASSWORD: stockpassword
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - stock_postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: stock-redis
+    restart: unless-stopped
+
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - stock_redis_data:/data
+
+volumes:
+  stock_postgres_data:
+  stock_redis_data:

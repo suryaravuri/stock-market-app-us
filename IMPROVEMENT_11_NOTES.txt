@@ -1,0 +1,13 @@
+Improvement #11 - Confirmed breakout risk recalculation
+
+When follow-through/retest produces ENTRY_CONFIRMED:
+- Entry = completed follow-through/retest candle close.
+- Stop anchor = lower of breakout level and follow-through candle low.
+- Stop = anchor - 0.10 ATR.
+- Targets prefer structural resistance above the confirmed entry.
+- If no structural resistance exists above entry, targets fall back to 2R/3R
+  planning levels (explicitly labeled R_MULTIPLE_FALLBACK; not a forecast).
+- Setup risk_reward now exposes recalculated_after_breakout, calculation_basis,
+  and target_source.
+- Position sizing automatically consumes the recalculated entry/stop because it
+  already uses SetupService risk_reward output.

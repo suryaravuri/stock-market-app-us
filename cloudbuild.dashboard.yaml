@@ -1,0 +1,12 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - Dockerfile.dashboard
+      - -t
+      - us-central1-docker.pkg.dev/commanding-pier-324218/stock-app/backend:dashboard-v8-20261102-kitefix
+      - .
+
+images:
+  - us-central1-docker.pkg.dev/commanding-pier-324218/stock-app/backend:dashboard-v8-20261102-kitefix

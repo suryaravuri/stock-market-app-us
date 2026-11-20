@@ -1,0 +1,20 @@
+Improvement #2 - Support/Resistance Confidence-Aware Opportunity Scoring
+
+Changes:
+1. Support/resistance strength scale:
+   1 touch=25, 2=45, 3=65, 4=85, 5+=100.
+2. Analysis summary now carries nearest_level metadata for support/resistance.
+3. Opportunity scoring uses both ATR proximity and level strength.
+   Nearby support: +2/+4/+7/+10 based on strength.
+   Nearby resistance: -3/-6/-10/-15 based on strength.
+4. Existing nearest support/resistance price fields remain unchanged for compatibility.
+5. Maximum position concentration improvement from prior build is retained.
+
+AMD baseline expectation with the supplied candle data:
+- nearest support 475.339 strength 100 => +10
+- nearest resistance 476.78 strength 25 => -3
+- overall opportunity score changes from 45 to approximately 57 (WATCH), assuming the same candle data.
+
+Important:
+- .env is intentionally excluded from this ZIP so extracting it does not overwrite local Alpaca credentials.
+- Keep your existing stock-market-backend/.env file.

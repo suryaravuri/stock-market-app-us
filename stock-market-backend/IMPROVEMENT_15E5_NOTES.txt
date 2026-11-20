@@ -1,0 +1,58 @@
+#15E-5 Source-Aware Analytics
+
+Purpose
+-------
+Prevent isolated synthetic position tests from mixing their synthetic OHLC prices with real market_candle rows when computing MFE, MAE, giveback, and exit efficiency.
+
+Changes
+-------
+1. New Alembic revision: e15e5a90c2b1 (down_revision c41a8e2d90f1).
+2. position_test_state.analytics_candle_source identifies the authoritative candle source.
+3. New position_test_candle_observation table persists every evaluated synthetic OHLC candle from #15C-2 controlled persistent tests.
+4. New synthetic runs use SYNTHETIC_PERSISTED_CANDLES.
+5. #15D real-candle runs use MARKET_CANDLE.
+6. Existing #15D real-candle test runs are backfilled to MARKET_CANDLE using their immutable opening-history event.
+7. Existing pre-#15E-5 synthetic runs remain SYNTHETIC_UNRECORDED because their full OHLC sequence cannot be reconstructed safely.
+8. Analytics response adds analytics_candle_source, source_data_status, and source_data_note.
+9. For SYNTHETIC_UNRECORDED historical runs, realized P&L remains available from entry/exit, but MFE/MAE/giveback/exit-efficiency are intentionally null rather than using real market data.
+10. No broker behavior changed. execution_mode remains ANALYSIS_ONLY.
+
+Expected validation
+-------------------
+A. Run: alembic upgrade head
+   Expected head: e15e5a90c2b1
+
+B. Re-query an old synthetic run created before #15E-5.
+   Expected:
+     analytics_candle_source = SYNTHETIC_UNRECORDED
+     source_data_status = UNAVAILABLE
+     realized_per_share remains correct
+     mfe_per_share = null
+     mae_per_share = null
+     exit_efficiency_pct = null
+
+C. Create a NEW controlled synthetic persistent test with the original 100/98/104/106 scenario, then query analytics.
+   Expected:
+     analytics_candle_source = SYNTHETIC_PERSISTED_CANDLES
+     source_data_status = AVAILABLE
+     entry_price = 100
+     exit_price = 102.5
+     realized_per_share = 2.5
+     realized_r = 1.25
+     best_price = 105.0
+     mfe_per_share = 5.0
+     mfe_r = 2.5
+     worst_price = 99.2
+     mae_per_share = -0.8
+     mae_r = -0.4
+     giveback_from_mfe_per_share = 2.5
+     exit_efficiency_pct = 50.0
+     candles_analyzed = 4
+
+D. Existing #15D real-candle test analytics should continue to report:
+     analytics_candle_source = MARKET_CANDLE
+     source_data_status = AVAILABLE
+
+Safety
+------
+ANALYSIS_ONLY; no broker order submission; no production position table mutation from analytics.

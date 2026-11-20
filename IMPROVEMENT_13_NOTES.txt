@@ -1,0 +1,17 @@
+Improvement #13 - Signal Expiration / Staleness Protection
+
+Adds an EXPIRED lifecycle state and blocks stale setups from becoming actionable.
+
+Rules:
+- 15Min setup freshness limit: 45 minutes (timeframe-aware defaults are defined in signal_staleness.py).
+- WATCHING/BREAKOUT_PENDING/FOLLOW_THROUGH_PENDING expire when their signal candle belongs to a prior market session.
+- Same-day unconfirmed signals expire after the regular session closes (America/New_York, 16:00).
+- BREAKOUT_PENDING/FOLLOW_THROUGH_PENDING expire after 4 newer regular-session candles without progression.
+- ENTRY_CONFIRMED is intentionally excluded; confirmed positions/signals belong to a later position-management lifecycle.
+
+New response diagnostics:
+expired, staleness_status, expiration_reason, signal_age_minutes,
+max_signal_age_minutes, pending_candles, max_pending_candles.
+
+When expired, /setup returns action=SIGNAL_EXPIRED and actionable=false.
+No database migration is required because signal_state.state is already a string column and history can store EXPIRED.

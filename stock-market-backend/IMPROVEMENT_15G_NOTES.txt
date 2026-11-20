@@ -1,0 +1,22 @@
+# Improvement #15G - Strategy Performance & Quality Score
+
+Adds source-aware strategy quality evaluation on top of #15F.
+
+Endpoint:
+GET /api/v1/analysis/trade-journal/quality
+
+Key safety/design rule:
+- Only completed PRODUCTION_ANALYTICAL positions contribute to the strategy quality score.
+- ISOLATED_TEST / synthetic engineering validation trades are counted and explicitly excluded.
+- A quality grade is withheld until at least 15 real analytical trades exist.
+- Confidence remains LOW until 30 real analytical trades and rises with sample size.
+- Read-only; ANALYSIS_ONLY; no broker calls; no database mutation.
+
+Score components (100 max):
+- sample size: 40
+- average R / expectancy: 30
+- R-based profit factor: 20
+- win rate: 10
+
+The score is intentionally conservative: small winning samples cannot receive a trusted grade.
+No Alembic migration required.

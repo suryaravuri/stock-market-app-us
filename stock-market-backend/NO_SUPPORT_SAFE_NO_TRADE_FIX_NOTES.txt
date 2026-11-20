@@ -1,0 +1,52 @@
+GOOGL NO-SUPPORT SAFE NO-TRADE FIX
+=================================
+
+Problem
+-------
+A valid analytical condition (no qualifying structural support below price)
+caused calculate_long_risk_reward() to raise ValueError. The validation scanner
+then reported ANALYSIS_FAILED even though market data, indicators, and ATR were
+valid.
+
+Fix
+---
+1. SetupService now treats missing pre-breakout support as a normal fail-closed
+   NO_TRADE result instead of an analysis exception.
+2. The strict risk calculator is unchanged; no support or stop value is invented.
+3. Confirmed breakouts are evaluated with the existing post-breakout risk model
+   before the pre-breakout support check, because confirmed-breakout risk does
+   not require the old support anchor.
+4. RiskRewardResponse now supports unavailable risk values explicitly through
+   available=false, reason, and nullable entry/stop/risk-per-share fields.
+5. RiskService fails closed when structural risk is unavailable: allowed=false,
+   shares=0, no fabricated stop, and the no-support reason is preserved.
+6. Added regression tests in tests/test_no_support_safe_no_trade.py.
+
+Expected GOOGL behavior
+-----------------------
+scan_status: SCANNED
+action: NO_TRADE
+actionable: false
+risk_reward_quality: UNAVAILABLE
+stop_loss: null
+position_state: NOT_OPEN
+broker_order_submitted: false
+
+Validation performed here
+-------------------------
+- py_compile passed for all modified Python files and the new test file.
+- Existing lifecycle regression tests passed: 13 passed.
+- The new service-level regression test could not execute in this Linux runtime
+  because psycopg is not installed in the available Python environment. The
+  user's bundled Windows virtualenv cannot be executed in Linux. Run the full
+  test in the project's Windows .venv after applying the patch.
+
+Recommended local command
+-------------------------
+pytest -q tests/test_no_support_safe_no_trade.py tests/test_signal_lifecycle.py tests/test_signal_rearm.py tests/test_signal_staleness.py
+
+Important validation-run note
+-----------------------------
+Applying this patch changes frozen strategy/service source. An active validation
+run should therefore report BASELINE_MISMATCH. Close that run, restart FastAPI,
+and create a new validation run before collecting post-fix evidence.

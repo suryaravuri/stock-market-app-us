@@ -1,0 +1,8 @@
+Improvement #10.1 - Breakout diagnostic consistency
+
+- failed_quality_checks is now populated even before price confirmation.
+- Adds CANDLE_NOT_BULLISH, BODY_TOO_SMALL, CLOSE_NOT_NEAR_HIGH,
+  UPPER_WICK_TOO_LARGE, and LOW_BREAKOUT_VOLUME when applicable.
+- ENTRY_CONFIRMED responses now report the original breakout candle's
+  breakout level/confirmation metrics rather than the follow-through candle's
+  independently calculated breakout baseline.

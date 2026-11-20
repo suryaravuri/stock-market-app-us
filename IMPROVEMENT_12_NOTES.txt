@@ -1,0 +1,21 @@
+Improvement #12 - Signal Lifecycle / State Machine
+==================================================
+
+Added a persistent per-stock/per-timeframe signal lifecycle:
+WATCHING -> BREAKOUT_PENDING -> FOLLOW_THROUGH_PENDING -> ENTRY_CONFIRMED -> INVALIDATED
+
+Key behavior:
+- /setup advances and persists the state machine.
+- repeated reads do not regress ENTRY_CONFIRMED back to WATCHING.
+- FOLLOW_THROUGH_FAILED or hard AVOID invalidates the current signal cycle.
+- state transitions are recorded in signal_state_history for auditability.
+- current state and history have dedicated read endpoints.
+
+New endpoints:
+GET /api/v1/analysis/{symbol}/signal-lifecycle?timeframe=15Min
+GET /api/v1/analysis/{symbol}/signal-lifecycle/history?timeframe=15Min&limit=50
+
+IMPORTANT: run database migration before testing:
+    alembic upgrade head
+
+No paper/live/automatic trading setting was enabled.

@@ -1,0 +1,20 @@
+Improvement #5 - Breakout Confirmation
+
+Adds a read-only breakout confirmation endpoint:
+GET /api/v1/analysis/{symbol}/breakout-confirmation?timeframe=15Min
+
+Confirmation requires:
+1. Latest completed candle closes above the highest high of the prior 20 candles.
+2. A 0.05 ATR price buffer above that breakout level.
+3. Latest volume >= 1.20x prior 20-candle average volume.
+4. Latest candle closes above its open.
+
+Statuses:
+- WAITING_FOR_PRICE
+- PRICE_BREAKOUT_LOW_VOLUME
+- PRICE_BREAKOUT_WEAK_CANDLE
+- BREAKOUT_CONFIRMED
+- INSUFFICIENT_DATA
+
+This layer does not submit orders and does not enable trading.
+Existing Improvement #1-#4 behavior is preserved.

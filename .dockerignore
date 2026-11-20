@@ -1,0 +1,9 @@
+@"
+stock-market-ui/node_modules
+stock-market-ui/dist
+stock-market-backend/.venv
+stock-market-backend/__pycache__
+**/__pycache__
+*.pyc
+.git
+"@ | Set-Content .\.dockerignore

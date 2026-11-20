@@ -1,0 +1,36 @@
+Signal lifecycle terminal-cycle timestamp fix
+Date: 2026-08-31
+
+Problem
+-------
+A terminal EXPIRED/INVALIDATED signal cycle could reject re-arming but still
+have signal_candle_time overwritten by the latest analytical observation.
+This produced contradictory output such as an EXPIRED prior-session reason
+paired with a current-session signal_candle_time.
+
+Fix
+---
+- Added should_refresh_signal_candle_time() lifecycle policy.
+- Active cycles continue to refresh signal_candle_time.
+- A real lifecycle transition (including transition into INVALIDATED/EXPIRED)
+  records the candle that caused the transition.
+- An already-terminal cycle that does not transition/re-arm preserves its
+  original cycle signal_candle_time.
+- No trading, entry-gate, re-arm qualification, or broker behavior changed.
+
+Regression tests
+----------------
+17 tests passed:
+  tests/test_signal_lifecycle.py
+  tests/test_signal_rearm.py
+  tests/test_signal_staleness.py
+
+Post-fix validation
+-------------------
+Restart FastAPI, run market sync, then run validation watchlist scan.
+For AMD when still AVOID and terminal/rearm rejected:
+- signal_state should remain EXPIRED (or existing terminal state)
+- signal_candle_time should remain the original terminal-cycle candle
+- analysis_as_of may advance to the latest completed regular-session candle
+- rearm_status should indicate SETUP_NOT_QUALIFIED
+- actionable must remain false

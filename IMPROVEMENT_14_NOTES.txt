@@ -1,0 +1,42 @@
+Improvement #14 - Signal Reset / New Trading Session Re-arming
+==============================================================
+
+Purpose
+-------
+Allow an EXPIRED (or pre-entry INVALIDATED) signal cycle to start a new cycle
+when genuinely fresh market data arrives in a newer regular-market session.
+The old cycle remains preserved in signal_state_history.
+
+Safety guardrails
+-----------------
+- Same historical candle cannot re-arm a terminal signal.
+- Same-session terminal signals cannot automatically re-arm.
+- Candidate candle must be fresh according to Improvement #13 staleness rules.
+- A still-invalidated setup cannot re-arm.
+- ENTRY_CONFIRMED is not reset by this pre-entry re-arm layer.
+- Paper/live/automatic trading settings are unchanged.
+
+New lifecycle diagnostics
+-------------------------
+- cycle_number
+- cycle_started_at
+- rearmed
+- rearm_status
+- rearm_reason
+
+New transition event
+--------------------
+SIGNAL_REARMED_NEW_SESSION
+
+Example
+-------
+Cycle 1: WATCHING -> EXPIRED
+Cycle 2: EXPIRED -> WATCHING (SIGNAL_REARMED_NEW_SESSION)
+
+Database migration
+------------------
+Run:
+    alembic upgrade head
+
+Migration adds cycle_number/cycle_started_at tracking while preserving existing
+signal history.

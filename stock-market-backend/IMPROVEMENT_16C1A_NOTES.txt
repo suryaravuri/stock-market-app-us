@@ -1,0 +1,11 @@
+#16C-1A Completed-Candle Enforcement Response Wiring
+
+Fixes FastAPI response-model filtering that removed #16C-1 diagnostics from the watchlist-scan JSON.
+
+Added to ValidationWatchlistScanStock:
+- analysis_as_of
+- latest_stored_candle
+- completed_candle_enforcement
+- used_incomplete_candle
+
+No strategy thresholds changed. No DB migration. ANALYSIS_ONLY remains enforced.

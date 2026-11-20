@@ -1,0 +1,44 @@
+# Improvement #15G-5 - Stateless Quality Score Simulation
+
+Purpose
+-------
+Validate the #15G quality-score mathematics without waiting for 15+ genuine
+production analytical exits and without contaminating the trade journal.
+
+Endpoint
+--------
+POST /api/v1/analysis/trade-journal/quality/simulate
+
+Example request
+---------------
+{
+  "realized_r_values": [1,1,1,1,1,1,1,1,1,1,1,1,-1,-1,-1,-1,-1,-1,-1,-1]
+}
+
+Expected key results for that 20-trade sample
+---------------------------------------------
+trades_received: 20
+wins: 12
+losses: 8
+win_rate_pct: 60.0
+average_r: 0.2
+profit_factor_r: 1.5
+sample_size_score: 26.67
+expectancy_score: 10.8
+profit_factor_score: 12.0
+win_rate_score: 8.33
+quality_score: 57.8
+quality_grade: C
+confidence: LOW
+assessment: EVALUATED
+
+Safety
+------
+simulation_mode: STATELESS_QUALITY_SCORE_VALIDATION
+execution_mode: ANALYSIS_ONLY
+persistence_mode: NONE
+broker_order_submitted: false
+database_mutated: false
+production_position_tables_mutated: false
+
+No database migration is required.

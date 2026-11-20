@@ -1,0 +1,85 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  annotations:
+    run.googleapis.com/creator: suryaravuri9@gmail.com
+    run.googleapis.com/lastModifier: suryaravuri9@gmail.com
+  labels:
+    cloud.googleapis.com/location: us-central1
+    run.googleapis.com/lastUpdatedTime: '2026-09-24T03:29:04.488818Z'
+  name: stock-bootstrap-admin
+  namespace: '331449731828'
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 583.0.0
+        run.googleapis.com/cloudsql-instances: commanding-pier-324218:us-central1:stock-market-db
+        run.googleapis.com/execution-environment: gen2
+      labels:
+        client.knative.dev/nonce: bot_vuc_doy
+    spec:
+      taskCount: 1
+      template:
+        spec:
+          containers:
+          - args:
+            - -m
+            - app.scripts.bootstrap_admin
+            command:
+            - python
+            env:
+            - name: CLOUD_SQL_CONNECTION_NAME
+              value: commanding-pier-324218:us-central1:stock-market-db
+            - name: DATABASE_NAME
+              value: stockmarket
+            - name: DATABASE_USER
+              value: stockuser
+            - name: DEBUG
+              value: 'false'
+            - name: TRADING_ENABLED
+              value: 'true'
+            - name: PAPER_TRADING_ENABLED
+              value: 'true'
+            - name: LIVE_TRADING_ENABLED
+              value: 'false'
+            - name: AUTO_TRADING_ENABLED
+              value: 'false'
+            - name: ALPACA_DATA_FEED
+              value: iex
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: '2'
+                  name: stock-db-password
+            - name: ALPACA_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: '1'
+                  name: stock-alpaca-api-key
+            - name: ALPACA_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: '1'
+                  name: stock-alpaca-secret-key
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: latest
+                  name: stock-jwt-secret-key
+            - name: BOOTSTRAP_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: '2'
+                  name: stock-bootstrap-admin-password
+            - name: BOOTSTRAP_ADMIN_EMAIL
+              value: suryaravuri9@gmail.com
+            image: us-central1-docker.pkg.dev/commanding-pier-324218/stock-app/backend:cloud-v9-paper
+            resources:
+              limits:
+                cpu: 1000m
+                memory: 512Mi
+          maxRetries: 3
+          serviceAccountName: stock-backend@commanding-pier-324218.iam.gserviceaccount.com
+          timeoutSeconds: '600'
