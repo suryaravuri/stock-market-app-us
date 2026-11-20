@@ -20,6 +20,7 @@ from app.services.validation_run_service import ValidationRunService
 from app.services.completed_candle_guard import CompletedCandleGuard
 from app.services.auto_paper_execution_service import AutoPaperExecutionService
 from app.core.config import settings
+from app.market.app_market import exchange_allowed
 from app.services.decision_log import DecisionLog, breakout_summary
 from app.services.live_bounce_service import BouncePlan, apply_live_check, remember_plan
 
@@ -125,7 +126,7 @@ class ValidationWatchlistScanService:
             )
             .order_by(WatchlistStock.priority.desc(), Stock.symbol.asc())
         )
-        rows = list(db.execute(stmt).all())
+        rows = [row for row in db.execute(stmt).all() if exchange_allowed(row[1].exchange)]
 
         results: list[dict] = []
         scanned = blocked = failures = actionable = entry_confirmed = 0

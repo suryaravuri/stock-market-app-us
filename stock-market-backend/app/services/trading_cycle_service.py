@@ -23,6 +23,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.logging_config import setup_logging
+from app.market.app_market import enabled_markets
 from app.market.sessions import (
     INDIA_SESSION,
     US_SESSION,
@@ -150,7 +151,7 @@ class TradingCycleService:
         force: bool,
         now_utc: datetime,
     ) -> dict:
-        wanted = {market.upper()} if market else set(MARKETS)
+        wanted = ({market.upper()} if market else set(MARKETS)) & enabled_markets()
         open_markets = {
             code for code in wanted
             if force or cls.market_window_open(MARKETS[code], now_utc)

@@ -19,8 +19,6 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import ScienceIcon from "@mui/icons-material/Science";
-import CandlestickChartIcon from "@mui/icons-material/CandlestickChart";
-import TimelineIcon from "@mui/icons-material/Timeline";
 
 import {
   Outlet,
@@ -71,12 +69,6 @@ const navigationItems = [
     icon: <AssessmentIcon fontSize="small" />,
   },
   { label: "Options", path: "/options", icon: <ShowChartIcon fontSize="small" /> },
-  { label: "Futures", path: "/futures", icon: <ShowChartIcon fontSize="small" /> },
-  {
-    label: "Trades & P&L",
-    path: "/trades",
-    icon: <ShowChartIcon fontSize="small" />,
-  },
   {
   label: "Sector Heatmap",
   path: "/heatmap",
