@@ -11,6 +11,11 @@ class Settings(BaseSettings):
     app_version: str = "1.0.0"
     # US | IN | ALL - which market this deployment serves (app/market/app_market.py)
     app_market: str = "US"
+
+    # Telegram phone alerts (app/services/alert_service.py). Empty = off.
+    telegram_bot_token: str = ""
+    telegram_chat_id: str = ""
+    alerts_enabled: bool = True
     debug: bool = False
 
     # PostgreSQL

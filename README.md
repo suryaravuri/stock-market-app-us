@@ -59,6 +59,18 @@ Select-String -Path logs\trading.log -Pattern "Local scheduler cycle" | Select-O
 - `logs/decisions.jsonl` — the same decisions as JSON (Bot Health page)
 - `logs/holdings_guard_state.json` — Holdings Guard state
 
+## Phone alerts (Telegram)
+1. In Telegram, message **@BotFather** -> `/newbot` -> copy the token.
+2. Send "hi" to your new bot.
+3. Put `TELEGRAM_BOT_TOKEN=...` in `.env`, then run
+   `.\.venv\Scripts\python.exe -m app.scripts.telegram_chat_id` and add the
+   printed `TELEGRAM_CHAT_ID=...` line to `.env`. Restart the backend.
+4. Test: `Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8000/api/v1/diagnostics/test-alert" -Headers @{ "X-Job-Token" = $job }`
+
+You get: BUY / SELL (with P&L) / Holdings Guard messages, a warning if a
+cycle crashes or no cycle succeeds for 35 min, "Bot ready" at 9:20 AM ET
+(if it doesn't arrive, the bot isn't running) and a 4:25 PM ET summary.
+
 ## Tests
 ```powershell
 cd stock-market-backend

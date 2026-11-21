@@ -52,6 +52,20 @@ def trading_readiness(
     return TradingReadinessService.evaluate(db, check_broker=check_broker)
 
 
+@router.post("/test-alert")
+def test_alert(_auth: None = Depends(user_or_job_token)):
+    """Send a test Telegram message (checks TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID)."""
+    from app.services import alert_service
+
+    if not alert_service.enabled():
+        raise HTTPException(status.HTTP_400_BAD_REQUEST,
+                            "Alerts are off: set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in .env and restart")
+    ok = alert_service.send("👋 Test alert from your trading bot", wait=True)
+    if not ok:
+        raise HTTPException(status.HTTP_502_BAD_GATEWAY, "Telegram refused the message - see logs/trading.log")
+    return {"sent": True}
+
+
 @router.get("/holdings-guard")
 def holdings_guard_status(_auth: None = Depends(user_or_job_token)):
     """Which holdings are guarded and their state (guarding / waiting to buy back)."""

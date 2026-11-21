@@ -318,6 +318,14 @@ class TradingCycleService:
                 logger.exception("Time exit sync failed")
                 summary["time_exits"] = {"error": f"{type(exc).__name__}: {exc}"}
 
+            # 4b. Phone alerts for positions closed since the last cycle.
+            try:
+                from app.services import alert_service
+
+                summary["closed_trade_alerts"] = alert_service.check_closed_trades(now_utc)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("Closed-trade alerts failed: %s", exc)
+
             # 5. Holdings Guard: trailing stop on holdings, buy back at support
             try:
                 from app.services.holdings_guard_service import HoldingsGuardService
