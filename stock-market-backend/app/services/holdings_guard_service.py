@@ -165,6 +165,10 @@ class HoldingsGuardService:
                 })
                 logger.warning("HOLDINGS GUARD %s: trailing stop SOLD %s @ %.2f - waiting to buy back",
                                symbol, s["sold_qty"], s["sold_price"])
+                from app.services import alert_service
+
+                alert_service.send(f"🛡️ HOLDINGS GUARD sold {s['sold_qty']:g} {symbol} @ "
+                                   f"{s['sold_price']:.2f} (trailing stop). Waiting to buy back.")
                 return {"symbol": symbol, "action": "SOLD", **s}
             if status in ("new", "accepted", "held", "pending_new", "partially_filled"):
                 return {"symbol": symbol, "action": "GUARDING", "trail_order_id": order_id,
@@ -228,6 +232,9 @@ class HoldingsGuardService:
         qty = int(s["sold_qty"])
         order = client.submit_market_buy(symbol, qty)
         logger.warning("HOLDINGS GUARD %s: BUY BACK %d - %s", symbol, qty, decision.reason)
+        from app.services import alert_service
+
+        alert_service.send(f"🛡️ HOLDINGS GUARD bought back {qty} {symbol} @ ~{price:.2f}\n{decision.reason}")
         s.update({"state": GUARDING, "trail_order_id": None, "last_rebuy": {
             "at": now.isoformat(), "qty": qty, "price_seen": price, "reason": decision.reason,
             "order_id": str(getattr(order, "id", "")), "sold_price": s.get("sold_price"),

@@ -78,6 +78,12 @@ def _run_once() -> None:
         STATE["failures"] += 1
         import traceback
         STATE["last_error"] = traceback.format_exc(limit=3)[-1500:]
+        from app.services import alert_service
+
+        alert_service.send(
+            "❌ Trading cycle crashed: " + STATE["last_error"].strip().splitlines()[-1][:300],
+            key="cycle_crash", cooldown_minutes=30,
+        )
         try:
             db.rollback()
         except Exception:  # noqa: BLE001 - connection may be dead
@@ -119,6 +125,13 @@ def start() -> None:
     _thread = threading.Thread(target=_loop, name="local-trading-scheduler", daemon=True)
     _thread.start()
 
+    from app.services.alert_service import watchdog
+
+    watchdog.start()
+
 
 def stop() -> None:
     _stop.set()
+    from app.services.alert_service import watchdog
+
+    watchdog.stop()

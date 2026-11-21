@@ -208,6 +208,9 @@ class AutoPaperExecutionService:
         elif stock is not None:
             logger.info("PAPER order submitted for %s: order_id=%s shares=%s",
                         symbol, result.get("order_id"), result.get("shares"))
+            from app.services import alert_service
+
+            alert_service.send(alert_service.format_buy(symbol, result, setup))
             result["holding_style"] = style.value
             result["auto_trade"] = AutoPaperExecutionService._record(
                 db=db,
